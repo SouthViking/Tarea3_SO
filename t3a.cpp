@@ -1,8 +1,9 @@
 #include <iostream>
 #include <omp.h>
 #include <mutex>
-#include <time.h>
+#include <chrono>
 #include <unistd.h>
+#include <stdlib.h>
 #include <cmath>
 #include <vector>
 #include <random>
@@ -138,18 +139,12 @@ int main(int argc, char *argv[]){
 
     ofstream file;
     file.open(filename, ios::app | ios::out);
-    
-    file << "-------- Características de la ejecución --------\n";
-
-    file << "> Dimensión de la matriz: " << size << "\n";
-
 
     vector<vector<double>> matrix(size, vector<double>(size));
     srand(time(NULL));
-    time_t start,finish;
     
-    time(&start);
-    file << "> Tiempo de inicio: " << start << "\n";
+    auto start = chrono::high_resolution_clock::now();
+
     generate_matrix(matrix,-10,10);
     if(matrix.size() <= PRINT_LIM){
         print_matrix(matrix);
@@ -157,12 +152,12 @@ int main(int argc, char *argv[]){
     Gaussian_elimination(matrix,true);
     long double det = determinant_calculator(matrix);
     cout << "Determinante = " << det << endl;
-    file << "> Det() = " << det << "\n";
 
-    time(&finish);
-    cout << "Tiempo tardado = " << double(finish-start) << " segs." << endl;
-    file << "> Tiempo de finalización: " << finish << "\n";
-    file << "> Tiempo total de ejecución: " << (double)finish-start << " segs.\n\n";
+
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start).count()/1000000.0;
+    cout << "Tiempo tardado: " << duration << endl;
+    file << duration << "\n";
     file.close();
     return 0;
 }
