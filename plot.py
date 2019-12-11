@@ -7,7 +7,7 @@ def truncate(number, digits) -> float:
     stepper = 10.0 ** digits
     return math.trunc(stepper * number) / stepper
 
-def generate_plot(dims):
+def generate_plot(dims,h):
     xvals = np.array([])
     yvals = np.array([])
 
@@ -36,7 +36,8 @@ def generate_plot(dims):
                  (x,y), # this is the point to label
                  textcoords="offset points", # how to position the text
                  xytext=(0,10), # distance from text to points (x,y)
-                 ha='center') # horizontal alignment can be left, right or center
+                 ha='center') # horizontal alignment can be left, right or center 
+    plt.xticks(xvals)
     plt.show()
 
 if __name__ == "__main__":
@@ -46,5 +47,5 @@ if __name__ == "__main__":
     init = input("Dimensión inicial: ")
     for i in range(int(n)):
         dims.append(int(init)+i*int(h))
-    
-    generate_plot(dims)
+        
+    generate_plot(dims,h)
