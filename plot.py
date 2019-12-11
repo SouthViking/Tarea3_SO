@@ -26,7 +26,7 @@ def generate_plot(dims,h):
     print(yvals)
 
     plt.grid()
-    plt.title("Tiempos de ejecución para cálculos de matrices de gran tamaño con algoritmo secuencial")
+    plt.title("Tiempos de ejecución para cálculos de determinantes de matrices de\ngran tamaño con algoritmo secuencial")
     plt.xlabel("Dimensión de la matriz")
     plt.ylabel("Tiempo de ejecución promedio (segs)")
     plt.plot(xvals,yvals,color="green",marker="o",markeredgecolor="red")
