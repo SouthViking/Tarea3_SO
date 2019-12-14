@@ -1,6 +1,5 @@
 #include <iostream>
 #include <omp.h>
-#include <mutex>
 #include <chrono>
 #include <unistd.h>
 #include <stdlib.h>
@@ -9,40 +8,33 @@
 #include <random>
 #include <tuple>
 #include <fstream>
+#define PRINT_LIM 20 // Dimensión límite para imprimir por terminal
 using namespace std;
+// Firmas de funciones
 void print_matrix(vector<vector<double>> &matrix);
 int get_notzerovalue(vector<tuple<double,int>> &list);
 void rowchange(vector<vector<double>> &matrix,int rowA,int rowB);
-#define PRINT_LIM 20 // Dimensión límite para imprimir por terminal
-
-// Para compilar añadir -fopenmp
-// #pragma omp parallel utiliza OMP_NUM_THREADS (1 o número de cores por defecto)
-// Se pueden agregar más threads libremente
-// En la terminal -> export OMP_NUM_THREADS=`grep 'processor' /proc/cpuinfo | wc -l `
-// #pragma omp parallel -> ejecuta dentro de un bloque de forma paralela
-// #pragma omp parallel for -> ejecuta el for siguiente (sólo ese) de forma paralela
 
 void Gaussian_elimination(vector<vector<double>> &matrix,bool piv){ // SIN PIVOTEO
     for(int k = 0 ; k < matrix.size()-1 ; k++){
+        
         bool change = false; // Indica si en la fila actual se está dividiendo por 0 (A[k][k])
         int zeros = 0; // Cuenta cantidad de ceros para la columna extraída
+        vector<tuple <double,int>> column; // Vector columna para extraer la columna en la iteración K
 
-        vector<tuple <double,int>> column;
         for(int v = k ; v < matrix.size() ; v++){
             if(!matrix[v][k]){
                 zeros++;
             }
-            if(piv){
+            if(piv){ // Si se realiza el algoritmo con pivteo, se extraen los valores de la columna
                 column.push_back(make_tuple(matrix[v][k],v));
-                //cout << "M[" << v << "][" << k << "] = " << matrix[v][k] << " (Index i = " << v << ") ";
             }
-            //cout << endl;
         }
         if(zeros == matrix.size()-k){
             cout << "Columna de 0s detectada - Determinante 0" << endl;
             exit(0);
         }
-        if(matrix[k][k] == 0.0){
+        if(matrix[k][k] == 0.0){ // Se debe realizar pivoteo
             change = true;
         }
 
@@ -55,13 +47,10 @@ void Gaussian_elimination(vector<vector<double>> &matrix,bool piv){ // SIN PIVOT
             for(int i = k+1 ; i < matrix.size() ; i++){
                 double m = (double)((double)matrix[i][k]/(double)matrix[k][k]);
                 for(int j = 0 ; j < matrix.size() ; j++){
-                    //cout << "Matrix (" << i << "," << j << ") = " << matrix[i][j] << " - " << m << " * " << matrix[k][j] << endl;
                     matrix[i][j] = matrix[i][j]-m*matrix[k][j];
                 }
             }
     }
-
-    // Matriz escalonada
     if(matrix.size() <= PRINT_LIM){
         print_matrix(matrix);
     }
@@ -86,7 +75,6 @@ int get_notzerovalue(vector<tuple<double,int>> &list){ // Retorna valor no nulo 
 void generate_matrix(vector<vector<double>> &matrix,int lim_inf,int lim_sup){
     default_random_engine generator;
     uniform_int_distribution<int> distribution(lim_inf,lim_sup);
-
     #pragma omp parallel
     {
     for(int i = 0 ; i < matrix.size() ; i++){
@@ -106,7 +94,6 @@ double determinant_calculator(vector<vector<double>> &matrix){
             cout << matrix[i][i] << " ";
         }
         det *= matrix[i][i];
-        //cout << det << " -> ";
     }
     if(matrix.size() < PRINT_LIM){
         cout << endl;
